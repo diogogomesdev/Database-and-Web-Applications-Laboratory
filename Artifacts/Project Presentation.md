@@ -1,0 +1,11 @@
+## A1: Project Presentation
+
+> This artefact introduces the context and motivation of the project and brifly describes the information system to be developed
+
+ManageME project is an Web Application for managing college projects. This is a tool that can be very useful to all college students who have to carry out complex group projects in which each member is responsible for certain tasks. We believe that this application is of great benefit to all university students especially in the current times we are living due to the COVID-19 pandemic.
+
+This application allows a student to create an account and start creating their projects (as a project manager) or accepting invitations for projects already created by other students. A project must always have a member with special permissions - project manager - who, in addition to doing tasks like the rest of the members, has the additional task of guiding the project and guiding the group, being able to eliminate a member who is not fulfilling theirs tasks and therefore not contributing to the project, such as adding a new member who is interested in taking part, simulating the development of projects in a business environment where it is essential to have a leader to organize members work. A extra part of this project is the description of the weight of the project evaluation in the college class so that all members of a project can consult and realize the importance of the project and thus motivate themselves to give the best they can. A user can access a Forum for each project, beeing this one an  essential piece because members need to talk and discuss ideas.
+
+As a motivation driven application- where project members are driven to work as a team and do their part - it is essential that the design and organization of tasks allow project member to conclude which ones have already worked more and what state the project is in.
+
+Given the large-scale use of smartphones, especially in the age group of people attending college (18-25), it is essential that the user has a good experience both on the computer, on a tablet or on a smartphone. It is also essential that the application is simple to use and the design clear, with only key information so that it is really a help to the students projects development and not a burden.
