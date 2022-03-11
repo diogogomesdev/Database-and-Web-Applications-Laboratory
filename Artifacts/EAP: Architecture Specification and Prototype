@@ -1,0 +1,876 @@
+# EAP: Architecture Specification and Prototype
+
+> ManageME project is an Web Application for managing college projects. This is a tool that can be very useful to all college students who have to carry out complex group projects in which each member is responsible for certain tasks. We believe that this application is of great benefit to all university students especially in the current times we are living due to the COVID-19 pandemic.
+
+## A7: High-level architecture. Privileges. Web resources specification
+
+> This artefact documents the  architecture of the web application to be developed, indicating the catalogue of resources, the properties of each resource, and the format of JSON responses. This specification adheres to the OpenAPI standard using YAML.
+This artefact presents the documentation for MediaLibrary, including the CRUD (create, read, update, delete) operations for each resource.
+
+### 1. Overview
+
+> An overview of the web application to implement is presented in this section, where the modules are identified and briefly described. The web resources associated with each module are detailed in the individual documentation of each module inside the OpenAPI specification.
+
+|                               |                                       |
+| ----------------------------- | ------------------------------------- |
+|    **M01: Authentication**    | Web resources associated with user authentication. Includes the following system features: login/logout, registration, credential recovery |
+|    **M02: Individual Profile**    | Web resources associated with individual profile management. Includes the following system features: view and edit personal profile information. |
+|    **M03: Projects**    | Web resources associated with projects. Includes the following system features: create project, update project, delete project. |
+|    **M04: Tasks**    | Web resources associated with tasks of a project. Includes the following system features: create task, delete task, finish task. |
+|    **M05: Forum**    | Web resources associated with Forum of a project. Includes the following system features: write and read messages. |
+|    **M06: Notifications**    | Web resources associated with Application Notifications. Includes the following system features: Notifications for new project, invites, |
+|    **M07: Administrador**    | Web resources associated with Administrator. Includes the following system features: see all projects, users, and delete a project or a user. |
+|    **M08: Static Pages**    | Presentation and information Pages. Home page, About Page, Privacy Page, Services Page and FAQ Page.  |
+
+### 2. Permissions
+
+> This section defines the permissions used in the modules to establish the conditions of access to resources.  
+
+|            |                       |             |
+| ---------- | --------------------  | ----------- |
+|    M01: Authentication    | **PUB** | Public |
+|    M02: Individual Profile   | **USR** | User |
+|    M03: Projects    | **OWN** | Owner |
+|    M04: Tasks    | **OWN** | Owner |
+|    M05: Forum    | **OWN** | Owner |
+|    M06: Notifications    | **USR** | User |
+|    M07: Administrador    | **ADM** | Administrator |
+|    M08: Static Pages    | **PUB** | Public |
+
+### 3. OpenAPI Specification
+
+> This section includes the complete API specification in OpenAPI (YAML).
+Additionally there is a link to the OpenAPI YAML file in the group's repository. The filename should include ‘openapi’ to activate GitLab’s OpenAPI viewer.
+
+```yaml
+
+openapi: 3.0.0
+
+info:
+ version: '2'
+ title: 'LBAW Project Management'
+ description: 'Web Resources Specification (A7) for Project Management'
+
+servers:
+- url: http://lbaw.fe.up.pt
+description: Production server
+
+externalDocs:
+ description: Find more info here.
+ url: https://git.fe.up.pt/lbaw/lbaw2122/lbaw2195/-/wikis/eap
+
+tags:
+ - name: 'M01: Authentication'
+ - name: 'M02: Individual Profile'
+ - name: 'M03: Projects'
+ - name: 'M04: Tasks'
+ - name: 'M05: Forum'
+ - name: 'M06: Notifications'
+ - name: 'M07: Administrador'
+ - name: 'M08: Presentation Pages'
+
+-------- M01: Authentication ----------
+
+paths:
+ /login:
+   get:
+     operationId: R101
+     summary: 'R101: Login Form'
+     description: 'Provide login form. Access: PUB'
+     tags:
+       - 'M01: Authentication'
+     responses:
+       '200':
+         description: 'Accepted. Show requested page - Login Page'
+   post:
+     operationId: R102
+     summary: 'R102: Login Action'
+     description: 'Processes the login form submission. Access: PUB'
+     tags:
+       - 'M01: Authentication'
+
+     requestBody:
+       required: true
+       content:
+         application/x-www-form-urlencoded:
+           schema:
+             type: object
+             properties:
+               email:          
+                 type: string
+               password:
+                 type: string
+             required:
+                  - email
+                  - password
+
+     responses:
+       '302':
+         description: 'Redirect after processing the login credentials.'
+         headers:
+           Location:
+             schema:
+               type: string
+             examples:
+               302Success:
+                 description: 'Accepted. Show requested page - User Page.'
+                 value: '/users/{id}'
+               302Error:
+                 description: 'Failed Authentication.'
+                 value: '/login'
+
+ /logout:
+
+   post:
+     operationId: R103
+     summary: 'R103: Logout Action'
+     description: 'Logout the current authenticated user. Access: USR, ADM'
+     tags:
+       - 'M01: Authentication'
+     responses:
+       '302':
+         description: 'Redirect after processing logout.'
+         headers:
+           Location:
+             schema:
+               type: string
+             examples:
+               302Success:
+                 description: 'Accepted. Show requested page - Home Page.'
+                 value: '/login'
+
+ /register:
+   get:
+     operationId: R104
+     summary: 'R104: Register Form'
+     description: 'Provide new user registration form. Access: PUB'
+     tags:
+       - 'M01: Authentication'
+     responses:
+       '200':
+         description: 'Accepted. Show requested page - Register Page.'
+
+   post:
+     operationId: R105
+     summary: 'R105: Register Action'
+     description: 'Processes the new user registration form submission. Access: PUB'
+     tags:
+       - 'M01: Authentication'
+
+     requestBody:
+       required: true
+       content:
+         application/x-www-form-urlencoded:
+           schema:
+             type: object
+             properties:
+               username:
+                 type: string
+               email:
+                 type: string
+               email:
+                 type: password
+               picture:
+                 type: string
+                 format: binary
+             required:
+                - username
+                - email
+                - password
+
+     responses:
+       '302':
+         description: 'Redirect after processing the new user information.'
+         headers:
+           Location:
+             schema:
+               type: string
+             examples:
+               302Success:
+                 description: 'Accepted. Show requested page - User Page.'
+                 value: '/users/{id}'
+               302Failure:
+                 description: 'Failed Authentication.'
+                 value: '/login'
+
+-------- Individual Profile ----------
+
+ /users/{id}:
+   get:
+     operationId: R201
+     summary: 'R201: View user profile'
+     description: 'Show the individual user profile. Access: USR'
+     tags:
+       - 'M02: Individual Profile'
+
+     parameters:
+       - in: path
+         name: id
+         schema:
+           type: integer
+         required: true
+
+     responses:
+       '200':
+         description: 'Accepted. Show requested page - User Page.'
+
+   patch:
+     operationId: R202
+     summary: 'R202: Update Action'
+     description: 'Processes the new user registration form submission. Access: OWN'
+     tags:
+       - 'M02: Individual Profile'
+
+     requestBody:
+       required: true
+       content:
+         application/x-www-form-urlencoded:
+           schema:
+             type: object
+             properties:
+               username:
+                 type: string
+               email:
+                 type: string
+               password:
+                 type: string
+               repeatPassword:
+                 type: string
+               picture:
+                 type: string
+                 format: binary
+             required:
+                - password
+                - repeatPassword
+     responses:
+      '200':
+       description: 'Accepted. Update profile information.'
+      '401':
+       description: 'Unauthorized.'
+                 
+-------- Projects ----------
+
+ /projects/{userId}:
+   get:
+     operationId: R301
+     summary: 'M03: Projects'
+     description: 'Show all projects of a user. Access: OWN'
+     tags:
+       - 'M03: Projects'
+
+     parameters:
+       - in: path
+         name: id
+         schema:
+           type: integer
+         required: true
+
+     responses:
+       '200':
+         description: 'Accepted. Show user projects'
+       '401':
+         description: 'Unauthorized.'
+       '403':
+         description: 'Forbidden.'
+       '404':
+         description: 'Not Found.'
+         
+ /project/post
+  post:
+     operationId: R302
+     summary: 'M03: Projects'
+     description: 'Post a project. Access: USR'
+     tags:
+       - 'M03: Projects'
+
+     requestBody:
+       required: true
+       content:
+         application/x-www-form-urlencoded:
+           schema:
+             type: object
+             properties:
+               name:
+                 type: string
+               endate:
+                 type: date
+               details:
+                 type: string
+               grade:
+                 type: string
+               picture:
+                 type: string
+                 format: binary
+             required:
+                - name
+                - endate
+                - details
+                - grade
+
+     responses:
+       '201':
+         description: 'Created. Project successfully created.'
+       '401':
+         description: 'Unauthorized.'
+       '403':
+         description: 'Forbidden.'
+
+ /projects/{projectId}:
+   get:
+     operationId: R303
+     summary: 'M03: Projects'
+     description: 'Show specific project of a user. Access: OWN'
+     tags:
+       - 'M03: Projects'
+
+     parameters:
+       - in: path
+         name: id
+         schema:
+           type: integer
+         required: true
+
+     responses:
+       '200':
+         description: 'Accepted. Show specific user project'
+       '401':
+         description: 'Unauthorized.'
+       '403':
+         description: 'Forbidden.'
+       '404':
+         description: 'Not Found.'
+   patch:
+     operationId: R304
+     summary: 'M03: Projects'
+     description: 'Update Project. Access: OWN'
+     tags:
+       - 'M03: Projects'
+
+     requestBody:
+       required: true
+       content:
+         application/x-www-form-urlencoded:
+           schema:
+             type: object
+             properties:
+               name:
+                 type: string
+               endate:
+                 type: date
+               details:
+                 type: string
+               grade:
+                 type: string
+               picture:
+                 type: string
+                 format: binary
+             required:
+     responses:
+      '200':
+       description: 'Accepted. Update profile information.'
+      '401':
+       description: 'Unauthorized.'
+       
+-------- Tasks ----------
+  
+ /api/task/{id}:
+  get:
+   operationId: R401
+   summary: 'R401 - Receive task'
+   description: 'Show all tasks.'
+   tags: 
+    - 'M04: Tasks'
+   parameters: 
+    - in: path
+      name: id
+      schema:
+        type: integer
+      required: true
+   responses:
+     '200':
+       description: 'Accepted. Show requested page - All tasks.'
+       
+  patch:
+    operationId: R403
+    summary: 'R403 - Edit task'
+    description: 'Edit an existing task.'
+    tags: 
+     - 'M04: Tasks'
+    parameters: 
+     - in: path
+       name: id
+       schema:
+         type: integer
+       required: true
+    responses:
+      '200':
+       description: 'Accepted. Task edited with success.'
+      '401':
+       description: 'Unauthorized.'
+  
+  
+ /api/task:  
+  post:
+    operationId: R402
+    summary: 'R402 - Create a task'
+    description: 'Create a new task.'
+    tags: 
+     - 'M04: Tasks'
+    requestBody:
+     required: true
+     content:
+       application/x-www-form-urlencoded:
+        schema:
+          type: object
+          properties:
+            name:
+             type: string
+            datestarted:
+             type: string
+            details:
+             type: string
+          required:
+           - name
+           - datestarted
+           - details
+    responses:
+      '201':
+       description: 'Created. Task successfully created.'
+      '401':
+        description: 'Unauthorized.'
+      '403':
+        description: 'Forbidden.'
+
+
+-------- Forum ----------
+
+  /api/forum_comment/{id}:
+  get:
+    operationId: R501
+    summary: 'R501 - Forum'
+    description: 'Request server to open forum.'
+    tags:
+     - 'M05: Forum'
+     
+    parameters: 
+     - in: path
+       name: id
+       schema:
+         type: integer
+       required: true
+       
+    responses:
+      '200':
+       description: 'Accepted. Show requested page - Forum.'
+       
+  patch:
+    operationId: R502
+    summary: 'R502 - Edit comment'
+    description: 'Update a comment.'
+    tags: 
+     - 'M05: Forum'
+    parameters: 
+     - in: path
+       name: id
+       schema:
+         type: object
+         properties:
+            content:
+              type: string
+            date:
+              type: date
+       required: true
+    responses:
+      '200':
+       description: 'Accepted. Update comment'
+      '401':
+       description: 'Unauthorized'
+       
+       
+  delete:
+    operationId: R504
+    summary: 'R504: Delete comment'
+    description: 'Delete a specific comment.'
+    tags: 
+     - 'M05: Forum'
+    parameters: 
+     - in: path
+       name: id
+       schema:
+         type: object
+         properties:
+            content:
+              type: string
+            date:
+              type: date
+       required: true
+    responses:
+      '200':
+       description: 'Success. Notification deleted.'
+      '401':
+       description: 'Unauthorized.'
+       
+       
+ /api/forum_comment:
+  post:
+    operationId: R503
+    summary: 'R503 - New Comment'
+    description: 'Create a new comment.'
+    tags: 
+     - 'M05: Forum'
+    requestBody:
+     required: true
+     content:
+       application/x-www-form-urlencoded:
+        schema:
+          type: object
+          properties:
+            content:
+             type: string
+            date:
+             type: string
+          required:
+           - content
+           - date
+    responses:
+       '201':
+         description: 'Created. Comment successfully created.'
+       '401':
+         description: 'Unauthorized.'
+       '403':
+         description: 'Forbidden.'
+
+       
+-------- Notifications ----------
+                         
+ /api/notification/{id}:
+  get:
+    operationId: R601
+    summary: 'R601 - Receive notifications'
+    description: 'Request server to receive all notifications.'
+    tags: 
+     - 'M06: Notifications'
+     
+    parameters: 
+     - in: path
+       name: id
+       schema:
+         type: integer
+       required: true
+       
+    responses:
+      '200':
+       description: 'Accepted. Show requested page - All notifications.'
+  
+  delete:
+    operationId: R602
+    summary: 'R602 - Delete notification'
+    description: 'Delete a specific notification.'
+    tags: 
+     - 'M06: Notifications'
+    parameters: 
+     - in: path
+       name: id
+       schema:
+         type: integer
+       required: true
+    responses:
+      '200':
+       description: 'Success. Notification deleted.'
+
+-------- Administrador ----------
+
+/api/projects/{id}:
+  get: 
+   operationId: R701
+   summary: 'R701 - Show project'
+   description: 'Show a specific project.'
+   tags:
+    - 'M07: Administrador'
+   
+   parameters: 
+    - in: path
+      name: id
+      schema:
+        type: integer
+      required: true
+      
+   responses:
+     '200':
+       description: 'Accepted. Show project.'
+     '404':
+       description: 'Not Found.'
+       
+  post:
+    operationId: R704
+    summary: 'R704 - Edit project'
+    description: 'Edit a project.'
+    tags: 
+     - 'M07: Administrador'
+    requestBody:
+     required: true
+     content:
+       application/x-www-form-urlencoded:
+        schema:
+          type: object
+          properties:
+            id:
+             type: integer
+            name:
+             type: string
+            endDate:
+             type: string
+            details:
+             type: string
+            photo:
+             type: object
+            grade:
+             type: string
+            idSubject:
+             type: integer
+          required:
+           - id
+           - name
+           - details
+    parameters: 
+    - in: path
+      name: id
+      schema:
+        type: integer
+      required: true
+    responses:
+      '302':
+       description: 'Project edited'
+       headers:
+         Location:
+          schema:
+            type: string
+          examples:
+            302Success:
+             description: 'Project edited with success'
+             value: '/project/{id}'
+            302Failure:
+             description: 'Failed editing.'
+             value: '/project'
+             
+             
+             
+  delete:
+    operationId: R705
+    summary: 'R705 - Delete project'
+    description: 'Delete a specific project.'
+    tags: 
+     - 'M07: Administrador'
+    parameters: 
+     - in: path
+       name: id
+       schema:
+         type: integer
+       required: true
+    responses:
+      '200':
+       description: 'Success. Project deleted.'
+       
+       
+       
+       
+ /api/users/{id}:
+  get: 
+   operationId: R702
+   summary: 'R702 - Show User'
+   description: 'Show a specific user.'
+   tags:
+    - 'M07: Administrador'
+   
+   parameters: 
+    - in: path
+      name: id
+      schema:
+        type: integer
+      required: true
+      
+   responses:
+     '200':
+       description: 'Accepted. Show user.'
+     '404':
+       description: 'Not Found.'
+
+
+  delete:
+    operationId: R706
+    summary: 'R706 - Kick user'
+    description: 'Kick a specific user.'
+    tags: 
+     - 'M07: Administrador'
+    parameters: 
+     - in: path
+       name: id
+       schema:
+         type: integer
+       required: true
+    responses:
+      '200':
+       description: 'Success. User deleted.'
+ 
+
+----------M08: Presentation Pages-----------
+
+ /home:
+   get:
+     operationId: R801
+     summary: 'R801: Home Page'
+     description: 'Home Page. Access: PUB'
+     tags:
+       - 'M08: Presentation Pages'
+     responses:
+       '200':
+         description: 'Accepted. Show requested page - Home Page'
+
+ /contact:
+   get:
+     operationId: R802
+     summary: 'R801: Contact Page'
+     description: 'Contact Page. Access: PUB'
+     tags:
+       - 'M08: Presentation Pages'
+     responses:
+       '200':
+         description: 'Accepted. Show requested page - Contact Page'
+
+ /services:
+   get:
+     operationId: R803
+     summary: 'R801: Faq Page'
+     description: 'Faq Page. Access: PUB'
+     tags:
+       - 'M08: Presentation Pages'
+     responses:
+       '200':
+         description: 'Accepted. Show requested page - Faq Page'
+         
+ /faq:
+   get:
+     operationId: R804
+     summary: 'R801: Faq Page'
+     description: 'Faq Page. Access: PUB'
+     tags:
+       - 'M08: Presentation Pages'
+     responses:
+       '200':
+         description: 'Accepted. Show requested page - Faq Page'
+         
+ /about:
+   get:
+     operationId: R805
+     summary: 'R801: About Page'
+     description: 'About Page. Access: PUB'
+     tags:
+       - 'M08: Presentation Pages'
+     responses:
+       '200':
+         description: 'Accepted. Show requested page - About Page'
+         
+ /privacy:
+   get:
+     operationId: R806
+     summary: 'R801: Privacy Page'
+     description: 'Privacy Page. Access: PUB'
+     tags:
+       - 'M08: Presentation Pages'
+     responses:
+       '200':
+         description: 'Accepted. Show requested page - Privacy Page'
+
+```
+
+---
+
+
+## A8: Vertical prototype
+
+> The Vertical Prototype includes the implementation of the features marked as necessary (with an asterisk) in the common and theme requirements documents. This artefact aims to validate the architecture presented, also serving to gain familiarity with the technologies used in the project.
+
+### 1. Implemented Features
+
+#### 1.1. Implemented User Stories
+
+> The user stories that were implemented in the prototype are described in the following table.  
+
+| User Story reference | Name                   | Priority                   | Description                   |
+| -------------------- | ---------------------- | -------------------------- | ----------------------------- |
+| US01                 | Sign-in | High | As a Visitor, I want to authenticate into the system, so that I can access privileged information |
+| US02                 | Sign-up | High | As a Visitor, I want to register myself into the system, so that I can afterwards authenticate myself |
+| US11                 | Homepage | High | As a Visitor, I want to access the home page, so that I can see a brief presentation of the website |
+| US12                 | About | Moderate | As a Visitor, I want to access the about page, so that I can see who is responsible for the application |
+| US12                 | Services | Moderate | As a Visitor, I want to access the services page, so that I can see the website's services |
+| US12                 | FAQ | Moderate | As a Visitor, I want to access the FAQ page, so that I can get quick answers to some of my questions  |
+| US12                 | Privacy | Moderate | As a Visitor, I want to know the privacy policy of the ManageME website |
+| US12                 | Contact | Moderate | As a Visitor, I want to access the contact page, so that I can get in touch with the owners of the website |
+| US21                 | Projects | High | As a User, I want to see all the projects that I am member |
+| US22                 | Create Project | High | As a User, I want to create a project |
+| US23                 | Update Project | High | As a User, I want to update a project that I created |
+| US24                 | Project | High | As a User, I want to see a specific information of a project and access the forum and tasks of that respective project |
+
+#### 1.2. Implemented Web Resources
+
+> Identify the web resources that were implemented in the prototype.  
+
+> Module M01: Authentication  
+
+| Web Resource Reference | URL                            |
+| ---------------------- | ------------------------------ |
+| R101: Login Form  | GET /login  |
+| R102: Login Form  | POST /login  |
+| R103: Logout  | GET /logout  |
+| R104: Register Form  | GET /register  |
+| R105: Register Form  | POST /register  |
+
+> M03: Projects  
+
+| Web Resource Reference | URL                            |
+| ---------------------- | ------------------------------ |
+| R301: Project Form  | GET /project/{id}  |
+| R302: Create Project  | GET /user/{id}/createProject  |
+| R303: Create Project  | POST /user/{id}/createProject   |
+| R304: Update Project | GET /project/{id}/update  |
+| R305: Update Project  | POST /project/{id}/update  |
+| R306: List Project  | GET /user/{id}/project  |
+| R305: Delete Project  | DELETE /project/{id}  |
+
+> M08: Static Pages  
+
+| Web Resource Reference | URL                            |
+| ---------------------- | ------------------------------ |
+| R801: Services  | GET /services  |
+| R802: About  | GET /about  |
+| R803: FAQ  | GET /faq  |
+| R804: Contact  | GET /contact  |
+| R805: Privacy  | GET /privacy  |
+| R806: Home  | GET /  |
+
+### 2. Prototype
+
+The prototype is available at http://lbaw2195.lbaw.fe.up.pt
+
+Credentials:
+regular user: teste@gmail.com / teste1
+
+The code is available at
+https://git.fe.up.pt/lbaw/lbaw2122/lbaw2195/-/tree/main 
+
+
+---
+
+
+## Revision history
+
+No changes were made to the first submission.
+We think about removing the page services but we ended finding it importante for all visitors to know the services ManageME has to offer.
+
+***
+GROUP2195, 7/01/2022
+ 
+* Group member 1 Alberto Cunha, up201906325 (Editor)
+* Group member 2 Diogo Geraldes, up201907847
+* Group member 3 Diogo Gomes, up201505676
+* Group member 4 Helder Bessa, up201503035
