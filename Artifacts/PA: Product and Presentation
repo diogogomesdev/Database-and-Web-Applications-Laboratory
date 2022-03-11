@@ -1,0 +1,164 @@
+# PA: Product and Presentation
+
+## A9: Product
+
+> ManageME project is an Web Application for managing college projects. This is a tool that can be very useful to all college students who have to carry out complex group projects in which each member is responsible for certain tasks. We believe that this application is of great benefit to all university students especially in the current times we are living due to the COVID-19 pandemic.  
+
+### 1. Installation
+
+> https://git.fe.up.pt/lbaw/lbaw2122/lbaw2195/-/tree/main
+
+> apply image lbaw.2195
+
+### 2. Usage
+
+> URL to the product: http://lbaw2195.lbaw.fe.up.pt  
+
+#### 2.1. Administration Credentials
+
+> URL Administrator: same as user.
+
+| Username | Password |
+| -------- | -------- |
+| admin@gmail.com    | admin1|
+
+#### 2.2. User Credentials
+
+| Type          | Username  | Password |
+| ------------- | --------- | -------- |
+| user account | user1@gmail.com    | userpass1|
+| user account | user2@gmail.com    | userpass2|
+
+### 3. Application Help
+
+> Help was implemented with the creation of two fundamental pages: FAQ Page and Contact Page.
+
+### 4. Input Validation
+  
+**Example of input validation in Register page - Server-Side**
+
+> Validation of register server-side. Password needs to have length bigger or equal to 6, name as a length max 255 and an account is required.
+
+```
+$validated = $request->validate([
+            'email' => 'required|string|email|max:255|unique:App\Models\User,email',
+            'name' => 'required|string|max:255',
+            'password' => 'required|string|min:6|confirmed',
+            'account' => 'required'
+        ]);
+```
+
+**Example of input validation in Register page - Client-Side**
+
+> It's mandatory that the input named email be a email.
+
+`<input type="email" />`
+
+### 5. Check Accessibility and Usability
+
+> Accessibility: 15/18 
+
+Link: https://git.fe.up.pt/lbaw/lbaw2122/lbaw2195/-/blob/main/Accessability,%20HTML/ChecklistAcessibilidade.pdf
+
+> Usability: 24/28 Link: 
+
+Link: https://git.fe.up.pt/lbaw/lbaw2122/lbaw2195/-/blob/main/Accessability,%20HTML/ChecklistUsabilidade.pdf
+
+### 6. HTML & CSS Validation
+   
+> HTML ( Think we add some errors because the file is of type .blade.php.  
+
+Link: https://git.fe.up.pt/lbaw/lbaw2122/lbaw2195/-/blob/main/Accessability,%20HTML/htmlChecker.pdf
+
+> CSS (No errors found)
+
+Link: https://git.fe.up.pt/lbaw/lbaw2122/lbaw2195/-/blob/main/Accessability,%20HTML/cssProjects.pdf
+
+### 7. Revisions to the Project
+
+> We couldn't accomplish the upload of photos and of every features, we decided we wouldn't do the comments to task since we didn't have the time and needed to choose what to not implement.
+
+### 8. Implementation Details
+
+#### 8.1. Libraries Used
+
+> We didn't use any library for the frontend. It was all made by scratch.  
+
+> Library Carbon
+ 
+We used the library Carbon to get the date.
+
+#### 8.2 User Stories
+
+> This subsection should include all high and medium priority user stories, sorted by order of implementation. Implementation should be sequential according to the order identified below.  
+
+| US Identifier | Name    | Module | Priority                       | Team Members               | State  |
+| ------------- | ------- | ------ | ------------------------------ | -------------------------- | ------ |
+| US01 | Home | Module | High | **Diogo Gomes**, Alberto | 100% |
+| US02 | Search| Module | Medium| **Diogo Geraldes**, Helder | 100% |
+| US03 | Services| Module | High | **Diogo Gomes**, Alberto | 100% |
+| US04 | FAQ| Module | High | **Diogo Gomes**, Alberto | 100% |
+| US05 | Contact| Module | High | **Diogo Gomes**, Alberto | 100% |
+| US06 | Privacy| Module | High | **Diogo Gomes**, Alberto | 100% |
+| US11 | Signin | Module | High | **Alberto**, Diogo Gomes | 100% |
+| US12 | Register| Module | High | **Alberto**, Diogo Gomes | 100% |
+| US13 | View profile| Module | High | **Diogo Geraldes**, Helder | 100% |
+| US14 | View user profile| Module| High | **Alberto**, Helder | 100% |
+| US15 | Update profile| Module| High | **Diogo Geraldes**, Helder | 100% |
+| US21 | Accept invitation | Module | High | **Diogo Gomes**, Alberto | 100% |
+| US22 | Create a project | Module | High | **Alberto**, Diogo Gomes | 100% |
+| US23 | View a project| Module | High | **Alberto**, Diogo Gomes | 100% |
+| US24 | Update a project| Module | High | **Alberto**, Diogo Gomes | 100% |
+| US25 | Delete a project| Module | High | **Alberto**, Diogo Gomes | 100% |
+| US26 | Leave a project| Module | High | **Diogo Geraldes**, Diogo Geraldes | 100% |
+| US27 | Archive a project| Module | High | **Diogo Gomes**, Alberto | 100% |
+| US28 | Favourite | Module | High | **Diogo Geraldes**, Helder | 100% |
+| US31 | Create task| Module | High | **Helder**, Diogo Geraldes | 100% |
+| US32 | Update task| Module | High | **Helder**, Diogo Geraldes | 100% |
+| US33 | Viewtask| Module | High | **Helder**, Diogo Geraldes | 100% |
+| US34 | Assign | Module | High | **Helder**, Diogo Geraldes | 100% |
+| US35 | Complete task| Module | High | **Helder**, Diogo Geraldes | 100% |
+| US41 | Add user| Module| High | **Diogo Gomes**, Alberto | 100% |
+| US42 | Remove user| Module| High | **Diogo Gomes**, Alberto | 100% |
+| US43 | Assign coordinator| Module| High | **Diogo Gomes**, Alberto | 100% |
+| US51 | Remove user | Module | High | **Alberto**, Diogo Gomes | 100% |
+| US52 | Delete a project| Module | High | **Alberto**, Diogo Gomes | 100% |
+| US53 | Check details of a project| Module | High | **Alberto**, Diogo Gomes | 100% |
+| US54 | Browse a project| Module | High| **Alberto**, Diogo Gomes | 100% |
+
+---
+
+## A10: Presentation
+ 
+> This artefact corresponds to the presentation of the product.
+
+### 1. Product presentation
+
+> ManageME project is an Web Application for managing college projects. The main features of our application are the possibility to create and manage projects, invite other users or be invited to a project, create tasks and assignee to yourself or to other members and communicate to a specific forum, unique in every project. 
+
+> URL to the product: http://lbaw2195.lbaw.fe.up.pt  
+
+> URL to Presentation Slides: https://git.fe.up.pt/lbaw/lbaw2122/lbaw2195/-/blob/main/Apresentação/lbaw.pdf
+
+### 2. Video presentation
+
+
+![Captura_de_ecrã_2022-01-22__às_08.50.22](uploads/d178c859263625222f82c70ccc8cbbd7/Captura_de_ecrã_2022-01-22__às_08.50.22.png)
+
+> - https://drive.google.com/file/d/1P9rLMU_Ua5f41R0eeEAUlBl2zoBb4xoD/view?usp=sharing
+
+---
+
+## Revision history
+
+Changes made to the first submission:
+1. We couldn't accomplish the upload of photos.
+2. We couldn't accomplish the feature of comments to tasks.
+
+***
+GROUP2195, 21/01/2022
+
+* Group member 1 Alberto Cunha, up201906325
+* Group member 2 Diogo Geraldes, up201907847
+* Group member 3 Diogo Gomes, up201505676 Editor
+* Group member 4 Helder Bessa, up201503035
