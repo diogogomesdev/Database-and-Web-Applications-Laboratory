@@ -179,12 +179,4 @@ Given the large-scale use of smartphones, especially in the age group of people 
 
 2 - Button to access forum for specific project
 
----
 
-***
-GROUP2195, 5/11/2021
-
-* Group member 1 Alberto Cunha, up201906325
-* Group member 2 Diogo Geraldes, up201907847
-* Group member 3 Diogo Gomes, up201505676
-* Group member 4 Helder Bessa, up201503035
