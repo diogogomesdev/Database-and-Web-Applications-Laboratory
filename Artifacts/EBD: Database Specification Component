@@ -1,0 +1,932 @@
+# EBD: Database Specification Component
+
+> ManageME project is an Web Application for managing college projects. This is a tool that can be very useful to all college students who have to carry out complex group projects in which each member is responsible for certain tasks. We believe that this application is of great benefit to all university students especially in the current times we are living due to the COVID-19 pandemic.
+
+> This application allows a student to create an account and start creating their projects (as a project manager) or accepting invitations for projects already created by other students. A project must always have a member with special permissions - project manager - who, in addition to doing tasks like the rest of the members, has the additional task of guiding the project and guiding the group, being able to eliminate a member who is not fulfilling theirs tasks and therefore not contributing to the project, such as adding a new member who is interested in taking part, simulating the development of projects in a business environment where it is essential to have a leader to organize members work.
+
+## A4: Conceptual Data Model
+
+> The Conceptual Data Model contains the identification and description of the entities and relationships that are relevant to the database specification.
+
+### 1. Class diagram
+
+> UML class diagram containing the classes, associations, multiplicity and roles.  
+> For each class, the attributes, associations and constraints are included in the class diagram.
+![lbawDX](uploads/b47099ba58c76a3d803d6ac8240cf832/lbawDX.png)
+
+### 2. Additional Business Rules
+ 
+The additional Business Rules that were specified for this delivery can be seen in the following table. These Business Rules where also added to the Business Rules section in the A2 Artifact.
+
+| Identifier |         Name          | Description |
+| ---------- | --------------------  | ----------- |
+|    BR03    | Default photos          | When a user creates an account, if do not upload an image, will have an default image |
+| BR04       | Remove Notifications | Checking the notification or logout results in the removal of the notification. |
+|  BR05      | Existing subjects     | All subjects alreadt exist in the database. |
+|  BR06      | Privileges            | Only a coordinator can change a projects's details and endDate. |
+|  BR07      | Task Independence     | A Task can't be NonCompleted and Completed at the same time. |
+## A5: Relational Schema, validation and schema refinement
+
+> This artifact contains the Relational Schema obtained by mapping from the Conceptual Data Model. The Relational Schema includes each relation schema, attributes, domains, primary keys, foreign keys and other integrity rules: UNIQUE, DEFAULT, NOT NULL, CHECK. 
+
+### 1. Relational Schema
+
+> 
+> Relation schemas are specified in the compact notation:  
+
+| Relation reference | Relation Compact Notation                        |
+| ------------------ | ------------------------------------------------ |
+| R01                | user(_id_, email __UN__ __NN__, photo __DF__ "path", password __NN__, name __NN__)|
+| R02                | project(_id_, name __NN__, endDate, details __NN__, photo __DF__ "path", archived, grade, idSubject -> subject)
+| R03                | member(_idUser_ -> user , _idProject_ -> project, favourite, creator)|
+| R04                | invite((_idInviter_, _idInvitee_) -> user, _idProject_ -> project, invDate)|
+| R05                | forum_comment(_id_, idUser → user, idProject -> project, content, date) |
+| R06                | subject(_id_, code __UN__, course, year, name __UN__) |
+| R07                | task(_id_, idProject -> project, name __NN__ ,dateStarted __NN__, details __NN__)
+| R08                | non_completed(_id_ -> task) |
+| R09                | completed(_id_ -> task, dateEnded __CK__ dateEnded > dateStarted) |
+| R10                | doing(_idUser_ -> user, _idTask_ -> task, creator) |
+| R11                | task_comment(_id_, idUser -> user, idTask -> task, date, content) |
+| R12                | notification(_id_, date __NN__, content __NN__, idUser -> user)
+
+Legend:
+- UK = Unique Key
+- NN = Not Null
+- CK = Check
+- DF = Default
+
+### 2. Domains
+
+> The specification of additional domains can also be made in a compact form, using the notation:  
+
+| Domain Name | Domain Specification           |
+| ----------- | ------------------------------ |
+| Today	      | DATE DEFAULT CURRENT_DATE      |
+| Topic       | ENUM ('Invited', 'Created Task', 'Removed Task', 'Removed Project') |
+
+### 3. Schema validation
+
+> To validate the Relational Schema obtained from the Conceptual Model, all functional dependencies are identified and the normalization of all relation schemas is accomplished. Should it be necessary, in case the scheme is not in the Boyce–Codd Normal Form (BCNF), the relational schema is refined using normalization.  
+
+| **TABLE R01**   | project              |
+| --------------  | ---                |
+| **Keys**        | { id }  |
+| **Functional Dependencies:** |       |
+| FD0101          | id → {name, endDate, details, photo, archived, grade, idSubject} |
+| **NORMAL FORM** | BCNF               |
+
+| **TABLE R02**   | user               |
+| --------------  | ---                |
+| **Keys**        | { id }  |
+| **Functional Dependencies:** |       |
+| FD0201          | id → {email, photo, password, name} |
+| **NORMAL FORM** | BCNF               |
+
+| **TABLE R03**   | member               |
+| --------------  | ---                |
+| **Keys**        | { idUser, idProject }  |
+| **Functional Dependencies:** |       |
+| FD0301          | {idUser, idProject} → {creator, favourite} |
+| **NORMAL FORM** | BCNF               |
+
+| **TABLE R04**   | invite               |
+| --------------  | ---                |
+| **Keys**        | { idInviter, idInvitee, idProject }  |
+| **Functional Dependencies:** |       |
+| FD0401          | {idInviter, idInvitee, idProject} → {invDate} |
+| **NORMAL FORM** | BCNF               |
+
+| **TABLE R05**   | forum_comment              |
+| --------------  | ---                |
+| **Keys**        | { id }  |
+| **Functional Dependencies:** |       |
+| FD0501          | {id} → {idUser, idProject, content, date} |
+| **NORMAL FORM** | BCNF               |
+
+| **TABLE R06**   | subject               |
+| --------------  | ---                |
+| **Keys**        | { id }  |
+| **Functional Dependencies:** |       |
+| FD0601          | id → {code, course, year, name} |
+| **NORMAL FORM** | BCNF               |
+
+| **TABLE R07**   | task               |
+| --------------  | ---                |
+| **Keys**        | { id }  |
+| **Functional Dependencies:** |       |
+| FD0701          | id → {name, idProject, dateStarted, details} |
+| **NORMAL FORM** | BCNF               |
+
+| **TABLE R08**   | non_completed               |
+| --------------  | ---                |
+| **Keys**        | { id }  |
+| **Functional Dependencies:** |  none     |
+| **NORMAL FORM** | BCNF               |
+
+| **TABLE R09**   | completed              |
+| --------------  | ---                |
+| **Keys**        | { id }  |
+| **Functional Dependencies:** |       |
+| FD0801          | id → {dateEnded} |
+| **NORMAL FORM** | BCNF               |
+
+| **TABLE R10**   | doing               |
+| --------------  | ---                |
+| **Keys**        | { idUser, idTask }  |
+| **Functional Dependencies:** |       |
+| FD0901          | {idUser, idTask} → {creator} |
+| **NORMAL FORM** | BCNF               |
+
+| **TABLE R11**   | task_comment             |
+| --------------  | ---                |
+| **Keys**        | { id }  |
+| **Functional Dependencies:** |       |
+| FD1001          | {id} → {idUser, idTask, date, content} |
+| **NORMAL FORM** | BCNF               |
+
+| **TABLE R12**   | notification              |
+| --------------  | ---                |
+| **Keys**        | { id }  |
+| **Functional Dependencies:** |       |
+| FD1101          | {id} → {date, content, idUser} |
+| **NORMAL FORM** | BCNF               |
+
+As every single relation is in the Boyce-Codd Normal Form (BCNF), the relational scheme is also in BCNF. Therefore, the schema doesn't need to be further normalised.
+
+> If necessary, description of the changes necessary to convert the schema to BCNF.  
+> Justification of the BCNF.  
+
+
+---
+
+
+## A6: Indexes, triggers, transactions and database population
+
+> This artefact contains the physical schema of the database, the identification and characterisation of the indexes, the support of data integrity rules with triggers and the definition of the database user-defined functions.
+
+### 1. Database Workload
+ 
+> A study of the predicted system load (database load).
+> Estimate of tuples at each relation.
+
+| **Relation reference** | **Relation Name** | **Order of magnitude**        | **Estimated growth** |
+| ------------------ | ------------- | ------------------------- | -------- |
+| R01 | users           | 10k  | 5 / day    |
+| R02 | project              | 10k      | 10/day    |
+| R03 | member           | 10k     | 100/day     |
+| R04 | invite             | 1k      | 100/day     |
+| R05 | forum_comments              | 100k      | 1k/day       |
+| R06 | subjects             | 100                 | 1/day  |
+| R07 | task             | 1k                     | 100/day            |
+| R08 | completed      | 10k              | 100/day      |
+| R9 | nonCompleted          | 100               | 100/day  |
+| R10 | doing           | 1k                 | 100/day  |
+| R11 | task_comments            | 10k              | 1k/day       |
+| R12 | notifications       | 10k               | 100/day       |
+
+
+### 2. Proposed Indices
+
+#### 2.1. Performance Indices
+ 
+> Indices proposed to improve performance of the identified queries.
+
+| **Index**           | IDX01                                  |
+| ---                 | ---                                    |
+| **Relation**        | tasks                                |
+| **Attribute**       | id_user                                  |
+| **Type**            | Hash                                   |
+| **Cardinality**     | Attribute cardinality:high           |
+| **Clustering**      | Yes                                    |
+| **Justification**   | The table 'doing' is very frequently accessed to obtain the tasks a user is working. We choose the hash because filtering is done by exact match.                                               |
+| `SQL code`          | CREATE INDEX user_tasks ON doing USING hash (id_user);                                           ||
+
+| **Index**           | IDX02                                  |
+| ---                 | ---                                    |
+| **Relation**        | invite                                   |
+| **Attribute**       | idInvitee                            |
+| **Type**            | Hash                                   |
+| **Cardinality**     | Attribute cardinality:medium           |
+| **Clustering**      | Yes                                    |
+| **Justification**   | The table 'invite' is frequently accessed to obtain the invites a user have. The filtering is done by exact match, thus hash is the best choice.                                                   |
+| `SQL code`          | CREATE INDEX user_invites ON invite USING hash (idInvitee);
+                                  
+
+| **Index**           | IDX03                                  |
+| ---                 | ---                                    |
+| **Relation**        | forum_comments                           |
+| **Attribute**       | idProject                                   |
+| **Type**            | Hash                                 |
+| **Cardinality**     | Attribute cardinality:medium           |
+| **Clustering**      | Yes                                     |
+| **Justification**   | The table 'forum_comments' is very frequently accessed to obtain the comments for each project. The filtering is done by exact match, thus hash is the best choice.                  |
+| `SQL code`          | CREATE INDEX project_comments ON forum_comments USING hash (idProject);
+                            
+
+| **Index**           | IDX04                                  |
+| ---                 | ---                                    |
+| **Relation**        | member                                |
+| **Attribute**       | idUser                                  |
+| **Type**            | Hash                                   |
+| **Cardinality**     | Attribute cardinality:medium           |
+| **Clustering**      | Yes                                    |
+| **Justification**   | The table 'member' is very frequently accessed to obtain the projects a user is member. The filtering is done by exact match, thus hash is the best choice.                                                  |
+| `SQL code`          | CREATE INDEX user_projects ON member USING hash (idUser);                                          
+
+| **Index**           | IDX05                                  |
+| ---                 | ---                                    |
+| **Relation**        | comments_task                                |
+| **Attribute**       | idTask                                  |
+| **Type**            | Hash                                   |
+| **Cardinality**     | Attribute cardinality:medium           |
+| **Clustering**      | Yes                                    |
+| **Justification**   | The table 'task_comments' is frequently accessed to obtain the comments for each task. The filtering is done by exact match, thus hash is the best choice.
+| `SQL code`          | CREATE INDEX comments_task ON task_comments USING hash (idTask);
+                                          
+
+| **Index**           | IDX06                                  |
+| ---                 | ---                                    |
+| **Relation**        | notifications                                |
+| **Attribute**       | idUser                                  |
+| **Type**            | Hash                                   |
+| **Cardinality**     | Attribute cardinality:medium           |
+| **Clustering**      | Yes                                    |
+| **Justification**   | The table 'notifications' is frequently accessed to obtain the notifications for each user. The filtering is done by exact match, thus hash is the best choice.                                              |
+| `SQL code`          | CREATE INDEX user_notifications ON notifications USING hash (idUser);
+                                        
+
+
+
+#### 2.2. Full-text Search Indices 
+
+> The system being developed must provide full-text search features supported by PostgreSQL. Thus, it is necessary to specify the fields where full-text search will be available and the associated setup, namely all necessary configurations, indexes definitions and other relevant details.  
+
+| **Index**           | IDX11                                  |
+| ---                 | ---                                    |
+| **Relation**        | project                                |
+| **Attribute**       | name, idSubject                               |
+| **Type**            | GIN                                   |
+| **Clustering**      | No                                     |
+| **Justification**   | To provide full-text search features to look for works based on matching name or idSubject. We choose to use the index type GIN because the indexed fields are not expected to change often or never.                                    |
+| `SQL code`          |
+```sql
+-- Add column to project to store computed ts_vectors.
+ALTER TABLE project
+ADD COLUMN tsvectors TSVECTOR;
+
+-- Create a function to automatically update ts_vectors.
+CREATE FUNCTION project_search_update() RETURNS TRIGGER AS $$
+BEGIN
+ IF TG_OP = 'INSERT' THEN
+        NEW.tsvectors = (
+         setweight(to_tsvector('english', NEW.name), 'A') ||
+         setweight(to_tsvector('english', (
+             SELECT name FROM subject WHERE id=NEW.idSubject
+         )), 'B') ||
+         setweight(to_tsvector('english', NEW.grade), 'c')
+        );
+ END IF;
+ IF TG_OP = 'UPDATE' THEN
+         IF (NEW.name <> OLD.name OR NEW.grade <> OLD.grade) THEN
+           NEW.tsvectors = (
+             setweight(to_tsvector('english', NEW.title), 'A') ||
+             setweight(to_tsvector('english', (
+             SELECT name FROM subject WHERE id=NEW.idSubject
+         )), 'B') ||
+             setweight(to_tsvector('english', NEW.grade), 'C')
+           );
+         END IF;
+ END IF;
+ RETURN NEW;
+END $$
+LANGUAGE plpgsql;
+
+-- Create a trigger before insert or update on project.
+CREATE TRIGGER project_search_update
+ BEFORE INSERT OR UPDATE ON project
+ FOR EACH ROW
+ EXECUTE PROCEDURE project_search_update();
+
+
+-- Finally, create a GIN index for ts_vectors.
+CREATE INDEX search_idx ON project USING GIN (tsvectors);
+```
+
+
+### 3. Triggers
+ 
+> User-defined functions and trigger procedures that add control structures to the SQL language or perform complex computations, are identified and described to be trusted by the database server. Every kind of function (SQL functions, Stored procedures, Trigger procedures) can take base types, composite types, or combinations of these as arguments (parameters). In addition, every kind of function can return a base type or a composite type. Functions can also be defined to return sets of base or composite values.  
+
+| **Trigger**      | TRIGGER01                              |
+| ---              | ---                                    |
+| **Description**  | An administrator account can't create or be part of a project. (BR02) |
+| `SQL code`                            | 
+```sql
+CREATE FUNCTION part_of_project() RETURNS TRIGGER AS
+$BODY$
+BEGIN
+        IF EXISTS (SELECT * FROM member WHERE NEW.idUser = idUser) THEN
+           RAISE EXCEPTION 'An administrator account can not create or be part of a project.';
+        END IF;
+        RETURN NEW;
+END
+$BODY$
+LANGUAGE plpgsql;
+
+CREATE TRIGGER create_project
+        BEFORE INSERT OR UPDATE ON member
+        FOR EACH ROW
+        EXECUTE PROCEDURE part_of_project();
+```
+
+| **Trigger**      | TRIGGER02                              |
+| ---              | ---                                    |
+| **Description**  | A Task can't be NonCompleted and Completed at the same time. (BR07) |
+| `SQL code`                                             |
+```sql
+CREATE FUNCTION check_completed_tasks() RETURNS TRIGGER AS
+$BODY$
+BEGIN
+        IF EXISTS (SELECT * FROM nonCompleted WHERE NEW.id = id) THEN
+           RAISE EXCEPTION 'A Task can not be NonCompleted and Completed at the same time.';
+        END IF;
+        RETURN NEW;
+END
+$BODY$
+LANGUAGE plpgsql;
+
+CREATE TRIGGER check_tasks_validity
+        BEFORE INSERT OR UPDATE ON completed
+        FOR EACH ROW
+        EXECUTE PROCEDURE check_completed_tasks();
+```
+
+| **Trigger**      | TRIGGER03                              |
+| ---              | ---                                    |
+| **Description**  | Only a coordinator can change a projects's details and endDate. (BR06) |
+| `SQL code`                                             |
+```sql
+CREATE FUNCTION check_if_creator() RETURNS TRIGGER AS
+$BODY$
+BEGIN
+        IF EXISTS (SELECT * FROM member WHERE NEW.id = id AND creator = FALSE) THEN
+           RAISE EXCEPTION 'Only a coordinator can change a projects details and endDate.';
+        END IF;
+        RETURN NEW;
+END
+$BODY$
+LANGUAGE plpgsql;
+
+CREATE TRIGGER check_creator_project
+        BEFORE INSERT OR UPDATE ON project
+        FOR EACH ROW
+        EXECUTE PROCEDURE check_if_creator();
+```
+
+
+### 4. Transactions
+ 
+> Transactions needed to assure the integrity of the data.  
+
+| SQL Reference   | TRANS01                             |
+| --------------- | ----------------------------------- |
+| Description     | Update non completed tasks when a task is completed           |   
+| Justification   | A transaction need to exist to guarantee that when a task is completed, is eliminated from the the table non_completed.              |
+| Isolation level | Read                     |
+| `SQL Code`      |                                    ||
+
+```sql
+BEGIN TRANSACTION;
+
+SET TRANSACTION ISOLATION LEVEL REPEATABLE READ
+
+--Delete Non_Completed
+DELETE FROM non_completed where id=$id;
+
+--Insert Completed
+INSERT ON completed (id, dateEnded) VALUES ($id, $dateEnded)
+
+END TRANSACTION;                          
+```
+
+
+## Annex A. SQL Code
+
+> The database scripts are included in this annex to the EBD component.
+> 
+> The database creation script and the population script should be presented as separate elements.
+> The creation script includes the code necessary to build (and rebuild) the database.
+> The population script includes an amount of tuples suitable for testing and with plausible values for the fields of the database.
+>
+> This code should also be included in the group's git repository and links added here.
+
+### A.1. Database schema
+
+**SQL code** 
+
+
+```sql
+SET search_path TO "lbaw-2195";
+
+-----------------------------------------
+-- Drop old schema
+-----------------------------------------
+
+DROP TABLE IF EXISTS users CASCADE;
+DROP TABLE IF EXISTS project CASCADE;
+DROP TABLE IF EXISTS member CASCADE;
+DROP TABLE IF EXISTS invite CASCADE;
+DROP TABLE IF EXISTS forum_comments CASCADE;
+DROP TABLE IF EXISTS subjects CASCADE;
+DROP TABLE IF EXISTS task CASCADE;
+DROP TABLE IF EXISTS completed CASCADE;
+DROP TABLE IF EXISTS nonCompleted CASCADE;
+DROP TABLE IF EXISTS doing CASCADE;
+DROP TABLE IF EXISTS task_comments CASCADE;
+DROP TABLE IF EXISTS notifications CASCADE;
+
+DROP TYPE IF EXISTS topic;
+
+DROP FUNCTION IF EXISTS part_of_project;
+DROP FUNCTION IF EXISTS check_completed_tasks;
+DROP FUNCTION IF EXISTS check_if_creator;
+
+-----------------------------------------
+-- Types
+-----------------------------------------
+
+CREATE TYPE topic AS ENUM ('Invited', 'Created task', 'Removed task', 'Removed project');
+
+-----------------------------------------
+-- Tables
+-----------------------------------------
+
+CREATE TABLE users (
+    id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL,
+    email TEXT NOT NULL UNIQUE,
+    photo TEXT DEFAULT 'defaultPhotos/User.png',
+    password TEXT NOT NULL
+);
+
+CREATE TABLE subjects (
+    id SERIAL PRIMARY KEY,
+    code TEXT UNIQUE,
+    course TEXT,
+    year INTEGER,
+    name TEXT UNIQUE
+);
+
+CREATE TABLE project (
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL,
+    endDate DATE,
+    details TEXT NOT NULL,
+    photo TEXT DEFAULT 'defaultPhotos/Project.png',
+    archived BOOLEAN,
+    grade INTEGER,
+    idSubject INTEGER REFERENCES subjects (id)
+);
+
+CREATE TABLE member (
+    idUser INTEGER REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    idProject INTEGER REFERENCES project(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    favourite BOOLEAN,
+    creator BOOLEAN,
+    coordinator BOOLEAN,
+	CONSTRAINT member_pk PRIMARY KEY (idUser, idProject)
+);
+
+CREATE TABLE invite (
+    idInviter INTEGER REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    idInvitee INTEGER REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    idProject INTEGER REFERENCES project(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    invDate DATE,
+	CONSTRAINT invite_pk PRIMARY KEY (idInviter, idInvitee, idProject)
+);
+
+CREATE TABLE forum_comments (
+    id SERIAL PRIMARY KEY,
+    idUser INTEGER REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    idProject INTEGER REFERENCES project(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    content TEXT,
+    date DATE
+);
+
+CREATE TABLE task (
+    id SERIAL PRIMARY KEY,
+    idProject INTEGER REFERENCES project(id),
+    name TEXT NOT NULL,
+    dateStarted DATE NOT NULL,
+    details TEXT NOT NULL
+);
+
+CREATE TABLE completed (
+    id INTEGER PRIMARY KEY REFERENCES task(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    dateEnded DATE
+);
+
+CREATE TABLE nonCompleted (
+    id INTEGER PRIMARY KEY REFERENCES task(id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE doing (
+    idUser INTEGER REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    idTask INTEGER REFERENCES task(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    creator BOOLEAN,
+	CONSTRAINT doing_pk PRIMARY KEY (idUser, idTask)
+);
+
+CREATE TABLE task_comments (
+    id SERIAL PRIMARY KEY,
+    idUser INTEGER REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    idTask INTEGER REFERENCES task(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    date DATE,
+    content TEXT
+);
+
+CREATE TABLE notifications (
+    id SERIAL PRIMARY KEY,
+    date DATE NOT NULL,
+    content TEXT NOT NULL,
+    idUser INTEGER REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+
+-----------------------------------------
+-- INDEXES
+-----------------------------------------
+
+CREATE INDEX user_tasks ON doing USING hash (idUser);
+
+CREATE INDEX user_invites ON invite USING hash (idInvitee);
+
+CREATE INDEX project_comments ON forum_comments USING hash (idProject);
+
+CREATE INDEX user_projects ON member USING hash (idUser);
+
+CREATE INDEX comments_task ON task_comments USING hash (idTask);
+
+CREATE INDEX user_notifications ON notifications USING hash (idUser);
+
+-----------------------------------------
+-- FTS INDEXES
+-----------------------------------------
+
+-- Add column to project to store computed ts_vectors.
+ALTER TABLE project
+ADD COLUMN tsvectors TSVECTOR;
+
+-- Create a function to automatically update ts_vectors.
+CREATE FUNCTION project_search_update() RETURNS TRIGGER AS $$
+BEGIN
+ IF TG_OP = 'INSERT' THEN
+        NEW.tsvectors = (
+         setweight(to_tsvector('english', NEW.name), 'A') ||
+         setweight(to_tsvector('english', (
+             SELECT name FROM subject WHERE id=NEW.idSubject
+         )), 'B') ||
+         setweight(to_tsvector('english', NEW.grade), 'c')
+        );
+ END IF;
+ IF TG_OP = 'UPDATE' THEN
+         IF (NEW.name <> OLD.name OR NEW.grade <> OLD.grade) THEN
+           NEW.tsvectors = (
+             setweight(to_tsvector('english', NEW.title), 'A') ||
+             setweight(to_tsvector('english', (
+             SELECT name FROM subject WHERE id=NEW.idSubject
+         )), 'B') ||
+             setweight(to_tsvector('english', NEW.grade), 'C')
+           );
+         END IF;
+ END IF;
+ RETURN NEW;
+END $$
+LANGUAGE plpgsql;
+
+-- Create a trigger before insert or update on project.
+CREATE TRIGGER project_search_update
+ BEFORE INSERT OR UPDATE ON project
+ FOR EACH ROW
+ EXECUTE PROCEDURE project_search_update();
+
+
+-- Finally, create a GIN index for ts_vectors.
+CREATE INDEX search_idx ON project USING GIN (tsvectors);
+
+
+-----------------------------------------
+-- TRIGGERS 
+-----------------------------------------
+
+--An administrator account can't create or be part of a project. (BR02)
+
+CREATE FUNCTION part_of_project() RETURNS TRIGGER AS
+$BODY$
+BEGIN
+        IF EXISTS (SELECT * FROM member WHERE NEW.idUser = idUser) THEN
+           RAISE EXCEPTION 'An administrator account can not create or be part of a project.';
+        END IF;
+        RETURN NEW;
+END
+$BODY$
+LANGUAGE plpgsql;
+
+CREATE TRIGGER create_project
+        BEFORE INSERT OR UPDATE ON member
+        FOR EACH ROW
+        EXECUTE PROCEDURE part_of_project();
+
+-- A Task can't be NonCompleted and Completed at the same time. (BR07)
+
+CREATE FUNCTION check_completed_tasks() RETURNS TRIGGER AS
+$BODY$
+BEGIN
+        IF EXISTS (SELECT * FROM nonCompleted WHERE NEW.id = id) THEN
+           RAISE EXCEPTION 'A Task can not be NonCompleted and Completed at the same time.';
+        END IF;
+        RETURN NEW;
+END
+$BODY$
+LANGUAGE plpgsql;
+
+CREATE TRIGGER check_tasks_validity
+        BEFORE INSERT OR UPDATE ON completed
+        FOR EACH ROW
+        EXECUTE PROCEDURE check_completed_tasks();
+
+-- Only a coordinator can change a projects's details and endDate. (BR06)
+
+CREATE FUNCTION check_if_creator() RETURNS TRIGGER AS
+$BODY$
+BEGIN
+        IF EXISTS (SELECT * FROM member WHERE NEW.id = id AND creator = FALSE) THEN
+           RAISE EXCEPTION 'Only a coordinator can change a projects details and endDate.';
+        END IF;
+        RETURN NEW;
+END
+$BODY$
+LANGUAGE plpgsql;
+
+CREATE TRIGGER check_creator_project
+        BEFORE INSERT OR UPDATE ON project
+        FOR EACH ROW
+        EXECUTE PROCEDURE check_if_creator();
+
+
+-----------------------------------------
+-- end
+-----------------------------------------
+
+```
+
+### A.2. Database population
+
+```sql
+-----------------------------------------
+-- Populate the database
+-----------------------------------------
+
+--users (30)
+INSERT INTO users (id,name,email,photo,password) VALUES (1,'Diogo','diogo@gmail.com','userPhotos/user1.png' ,'eqlkdkuab');
+INSERT INTO users (id,name,email,photo,password) VALUES (2,'Alberto','alberto@gmail.com','userPhotos/user2.png' ,'fwsdfvvr');
+INSERT INTO users (id,name,email,photo,password) VALUES (3,'Diana','diana@gmail.com','userPhotos/user3.png' ,'v452v542vre');
+INSERT INTO users (id,name,email,photo,password) VALUES (4,'Tomas','tomas@gmail.com','userPhotos/user4.png' ,'vefv34f3');
+INSERT INTO users (id,name,email,photo,password) VALUES (5,'Andre','andre@gmail.com','userPhotos/user5.png' ,'cvedvv--r.ava');
+INSERT INTO users (id,name,email,photo,password) VALUES (6,'Helder','helder@gmail.com','userPhotos/user6.png' ,'rv4frfvs');
+INSERT INTO users (id,name,email,photo,password) VALUES (7,'Joao','joao@gmail.com','userPhotos/user7.png' ,'qr4f4ffcxa');
+INSERT INTO users (id,name,email,photo,password) VALUES (8,'Augusto','augusto@gmail.com','userPhotos/user8.png' ,'3rgh65jergt');
+INSERT INTO users (id,name,email,photo,password) VALUES (9,'Francisco','francisco@gmail.com','userPhotos/user9.png' ,'jylkht90u');
+INSERT INTO users (id,name,email,photo,password) VALUES (10,'Ines','ines@gmail.com','userPhotos/user10.png' ,'fwkj48dhojo');
+INSERT INTO users (id,name,email,photo,password) VALUES (11,'Olga','olga@gmail.com','userPhotos/user11.png' ,',yik,tt78k');
+INSERT INTO users (id,name,email,photo,password) VALUES (12,'Francis','francis@gmail.com','userPhotos/user12.png' ,'43f41g5vl.');
+INSERT INTO users (id,name,email,photo,password) VALUES (13,'Sandra','sandra@gmail.com','userPhotos/user13.png' ,'324fqerwasvdva');
+INSERT INTO users (id,name,email,photo,password) VALUES (14,'Julio','julio@gmail.com','userPhotos/user14.png' ,'fwkj48dhojo');
+INSERT INTO users (id,name,email,photo,password) VALUES (15,'Pedro','pedroribeiro@gmail.com','userPhotos/user15.png' ,'5gtergh63365');
+INSERT INTO users (id,name,email,photo,password) VALUES (16,'Ana','anasa@gmail.com','userPhotos/user16.png' ,'fewf35423g');
+INSERT INTO users (id,name,email,photo,password) VALUES (17,'Antonio','antonio@gmail.com','userPhotos/user17.png' ,'erwferw');
+INSERT INTO users (id,name,email,photo,password) VALUES (18,'Pedro','pedro@gmail.com','userPhotos/user18.png' ,'5gtergh63365');
+INSERT INTO users (id,name,email,photo,password) VALUES (19,'Ana','ana@gmail.com','userPhotos/user19.png' ,'fewf35423g');
+INSERT INTO users (id,name,email,photo,password) VALUES (20,'Antonio Jesuita','antoniojesuita@gmail.com','userPhotos/user20.png' ,'erwferw');
+INSERT INTO users (id,name,email,photo,password) VALUES (21,'Antonio Andre','antonioandre@gmail.com','userPhotos/user21.png' ,'erwferw');
+INSERT INTO users (id,name,email,photo,password) VALUES (22,'Antonio Gomes','antoniogomes@gmail.com','userPhotos/user22.png' ,'erwferw');
+INSERT INTO users (id,name,email,photo,password) VALUES (23,'Antonio Ricardo','antonioricardo@gmail.com','userPhotos/user23.png' ,'erwferw');
+INSERT INTO users (id,name,email,photo,password) VALUES (24,'Antonio Geraldes','antoniogeraldes@gmail.com','userPhotos/user24.png' ,'erwferw');
+INSERT INTO users (id,name,email,photo,password) VALUES (25,'Antonio Francisco','antoniofrancisco@gmail.com','userPhotos/user25.png' ,'erwferw');
+INSERT INTO users (id,name,email,photo,password) VALUES (26,'Andre Geraldes','andregeraldes@gmail.com','userPhotos/user26.png' ,'rgwrwvdfsb');
+INSERT INTO users (id,name,email,photo,password) VALUES (27,'Andre Gomes','andregomes@gmail.com','userPhotos/user27.png' ,'rbtbdsfbt4');
+INSERT INTO users (id,name,email,photo,password) VALUES (28,'Ricardo Antunes','ricardoantunes@gmail.com','userPhotos/user28.png' ,'erw65765erw');
+INSERT INTO users (id,name,email,photo,password) VALUES (29,'Gil Ferreira','gilferreira@gmail.com','userPhotos/user29.png' ,'c54gf5434');
+INSERT INTO users (id,name,email,photo,password) VALUES (30,'Gil','gil@gmail.com','userPhotos/user30.png' ,'erwf5t5sderw');
+
+--subjects (5)
+INSERT INTO subjects (id,code,course,year,name) VALUES (1,'L.EIC013','Engenharia Informatica','2021', 'Laboratorio de Bases de Dados');
+INSERT INTO subjects (id,code,course,year,name) VALUES (2,'L.EIC011','Engenharia Informatica','2021', 'Redes de Computadores');
+INSERT INTO subjects (id,code,course,year,name) VALUES (3,'L.EIC012','Engenharia Informatica','2021', 'Laboratorio de Testes');
+INSERT INTO subjects (id,code,course,year,name) VALUES (4,'L.EIC020','Engenharia Informatica','2021', 'Fisica');
+INSERT INTO subjects (id,code,course,year,name) VALUES (5,'L.EIC077','Engenharia Informatica','2021', 'Fundamentos de Segurança Informatica');
+
+
+--projects (5)
+INSERT INTO project (id,name,endDate,details,photo,archived,grade,idSubject) VALUES (1,'LBAW','2022-10-5','The project for subject LBAW consists in designing a web application.', 'projectPhotos/project1.png' ,FALSE, 17, 1);
+INSERT INTO project (id,name,endDate,details,photo,archived,grade,idSubject) VALUES (2,'RCOM','2022-10-6','The project for subject RCOM consists in designing a data protocol.', 'projectPhotos/project2.png' ,FALSE, 10, 2);
+INSERT INTO project (id,name,endDate,details,photo,archived,grade,idSubject) VALUES (3,'LDTS','2022-10-9','The project for subject LDTS consists in designing a web application.', 'projectPhotos/project3.png' ,FALSE, 17, 3);
+INSERT INTO project (id,name,endDate,details,photo,archived,grade,idSubject) VALUES (4,'F','2022-10-10','Physics project is making reports about experiences that happen in classses.', 'projectPhotos/project4.png' ,FALSE, 10, 4);
+INSERT INTO project (id,name,endDate,details,photo,archived,grade,idSubject) VALUES (5,'FSI','2022-10-15','Project consists in making reports called logbooks for classes', 'projectPhotos/project5.png' ,FALSE, 17, 5);
+
+--members (33)
+INSERT INTO member (idUser,idProject,favourite,creator,coordinator) VALUES (1,1,TRUE,TRUE,TRUE);
+INSERT INTO member (idUser,idProject,favourite,creator,coordinator) VALUES (1,2,FALSE,FALSE,FALSE);
+INSERT INTO member (idUser,idProject,favourite,creator,coordinator) VALUES (1,3,FALSE,FALSE,FALSE);
+INSERT INTO member (idUser,idProject,favourite,creator,coordinator) VALUES (2,1,TRUE,FALSE,FALSE);
+INSERT INTO member (idUser,idProject,favourite,creator,coordinator) VALUES (2,5,FALSE,FALSE,FALSE);
+INSERT INTO member (idUser,idProject,favourite,creator,coordinator) VALUES (3,1,TRUE,FALSE,FALSE);
+INSERT INTO member (idUser,idProject,favourite,creator,coordinator) VALUES (4,1,TRUE,FALSE,FALSE);
+INSERT INTO member (idUser,idProject,favourite,creator,coordinator) VALUES (5,1,FALSE,FALSE,FALSE);
+INSERT INTO member (idUser,idProject,favourite,creator,coordinator) VALUES (5,4,FALSE,FALSE,FALSE);
+INSERT INTO member (idUser,idProject,favourite,creator,coordinator) VALUES (6,1,FALSE,FALSE,FALSE);
+INSERT INTO member (idUser,idProject,favourite,creator,coordinator) VALUES (7,1,TRUE,FALSE,FALSE);
+INSERT INTO member (idUser,idProject,favourite,creator,coordinator) VALUES (8,2,TRUE,TRUE,TRUE);
+INSERT INTO member (idUser,idProject,favourite,creator,coordinator) VALUES (9,2,TRUE,FALSE,FALSE);
+INSERT INTO member (idUser,idProject,favourite,creator,coordinator) VALUES (10,2,TRUE,FALSE,FALSE);
+INSERT INTO member (idUser,idProject,favourite,creator,coordinator) VALUES (11,2,TRUE,FALSE,FALSE);
+INSERT INTO member (idUser,idProject,favourite,creator,coordinator) VALUES (12,2,FALSE,FALSE,FALSE);
+INSERT INTO member (idUser,idProject,favourite,creator,coordinator) VALUES (13,2,FALSE,FALSE,FALSE);
+INSERT INTO member (idUser,idProject,favourite,creator,coordinator) VALUES (14,2,TRUE,FALSE,FALSE);
+INSERT INTO member (idUser,idProject,favourite,creator,coordinator) VALUES (15,3,TRUE,TRUE,TRUE);
+INSERT INTO member (idUser,idProject,favourite,creator,coordinator) VALUES (16,3,FALSE,FALSE,FALSE);
+INSERT INTO member (idUser,idProject,favourite,creator,coordinator) VALUES (17,3,FALSE,FALSE,FALSE);
+INSERT INTO member (idUser,idProject,favourite,creator,coordinator) VALUES (18,4,TRUE,TRUE,TRUE);
+INSERT INTO member (idUser,idProject,favourite,creator,coordinator) VALUES (19,4,FALSE,FALSE,FALSE);
+INSERT INTO member (idUser,idProject,favourite,creator,coordinator) VALUES (20,4,FALSE,FALSE,FALSE);
+INSERT INTO member (idUser,idProject,favourite,creator,coordinator) VALUES (20,1,FALSE,FALSE,FALSE);
+INSERT INTO member (idUser,idProject,favourite,creator,coordinator) VALUES (20,2,TRUE,FALSE,TRUE);
+INSERT INTO member (idUser,idProject,favourite,creator,coordinator) VALUES (21,5,TRUE,TRUE,TRUE);
+INSERT INTO member (idUser,idProject,favourite,creator,coordinator) VALUES (22,5,FALSE,FALSE,FALSE);
+INSERT INTO member (idUser,idProject,favourite,creator,coordinator) VALUES (23,5,FALSE,FALSE,TRUE);
+INSERT INTO member (idUser,idProject,favourite,creator,coordinator) VALUES (24,5,FALSE,FALSE,FALSE);
+INSERT INTO member (idUser,idProject,favourite,creator,coordinator) VALUES (25,5,FALSE,FALSE,TRUE);
+INSERT INTO member (idUser,idProject,favourite,creator,coordinator) VALUES (25,1,TRUE,FALSE,FALSE);
+INSERT INTO member (idUser,idProject,favourite,creator,coordinator) VALUES (25,2,FALSE,FALSE,FALSE);
+
+--invites (25)
+INSERT INTO invite (idInviter,idInvitee,idProject,invDate) VALUES (1,2,1,'2021-9-2');
+INSERT INTO invite (idInviter,idInvitee,idProject,invDate) VALUES (1,3,1,'2021-9-2');
+INSERT INTO invite (idInviter,idInvitee,idProject,invDate) VALUES (1,4,1,'2021-9-2');
+INSERT INTO invite (idInviter,idInvitee,idProject,invDate) VALUES (1,5,1,'2021-9-2');
+INSERT INTO invite (idInviter,idInvitee,idProject,invDate) VALUES (1,6,1,'2021-9-2');
+INSERT INTO invite (idInviter,idInvitee,idProject,invDate) VALUES (1,7,1,'2021-9-2');
+INSERT INTO invite (idInviter,idInvitee,idProject,invDate) VALUES (8,9,1,'2021-9-5');
+INSERT INTO invite (idInviter,idInvitee,idProject,invDate) VALUES (8,10,1,'2021-9-5');
+INSERT INTO invite (idInviter,idInvitee,idProject,invDate) VALUES (8,11,1,'2021-9-5');
+INSERT INTO invite (idInviter,idInvitee,idProject,invDate) VALUES (8,12,1,'2021-9-5');
+INSERT INTO invite (idInviter,idInvitee,idProject,invDate) VALUES (8,13,1,'2021-9-5');
+INSERT INTO invite (idInviter,idInvitee,idProject,invDate) VALUES (8,14,1,'2021-9-5');
+
+--forum comments (54)
+INSERT INTO forum_comments (id,idUser,idProject,content,date) VALUES (1,1,1,'Temos que trabalhar melhor','2021-9-5');
+INSERT INTO forum_comments (id,idUser,idProject,content,date) VALUES (2,2,1,'É o que estamos a fazer','2021-9-5');
+INSERT INTO forum_comments (id,idUser,idProject,content,date) VALUES (3,3,1,'Mias rapido acho','2021-9-5');
+INSERT INTO forum_comments (id,idUser,idProject,content,date) VALUES (4,4,1,'Temos mesmo','2021-9-5');
+INSERT INTO forum_comments (id,idUser,idProject,content,date) VALUES (5,1,1,'É o que acho tambem','2021-9-5');
+INSERT INTO forum_comments (id,idUser,idProject,content,date) VALUES (6,2,1,'Vamos organizar o trabalho','2021-9-5');
+INSERT INTO forum_comments (id,idUser,idProject,content,date) VALUES (7,3,1,'O que acham que deve mudar','2021-9-5');
+INSERT INTO forum_comments (id,idUser,idProject,content,date) VALUES (8,1,1,'Tudo','2021-9-5');
+INSERT INTO forum_comments (id,idUser,idProject,content,date) VALUES (9,2,1,'Pronto entao como fazemos','2021-9-5');
+INSERT INTO forum_comments (id,idUser,idProject,content,date) VALUES (10,4,1,'Vamos melhorar a organização','2021-9-5');
+INSERT INTO forum_comments (id,idUser,idProject,content,date) VALUES (11,1,1,'Pois é o melhor','2021-9-5');
+INSERT INTO forum_comments (id,idUser,idProject,content,date) VALUES (12,2,1,'Bora entao','2021-9-5');
+INSERT INTO forum_comments (id,idUser,idProject,content,date) VALUES (13,3,1,'Quando podem reunir?','2021-9-5');
+INSERT INTO forum_comments (id,idUser,idProject,content,date) VALUES (14,1,1,'Amanha','2021-9-5');
+INSERT INTO forum_comments (id,idUser,idProject,content,date) VALUES (15,4,1,'Amanha exato','2021-9-5');
+INSERT INTO forum_comments (id,idUser,idProject,content,date) VALUES (16,1,1,'Bora entao','2021-9-5');
+INSERT INTO forum_comments (id,idUser,idProject,content,date) VALUES (17,2,1,'Combinado','2021-9-5');
+INSERT INTO forum_comments (id,idUser,idProject,content,date) VALUES (18,3,1,'Vamos','2021-9-5');
+INSERT INTO forum_comments (id,idUser,idProject,content,date) VALUES (19,15,3,'Temos que trabalhar melhor','2021-9-5');
+INSERT INTO forum_comments (id,idUser,idProject,content,date) VALUES (20,16,3,'É o que estamos a fazer','2021-9-5');
+INSERT INTO forum_comments (id,idUser,idProject,content,date) VALUES (21,17,3,'Mias rapido acho','2021-9-5');
+INSERT INTO forum_comments (id,idUser,idProject,content,date) VALUES (22,15,3,'Temos mesmo','2021-9-5');
+INSERT INTO forum_comments (id,idUser,idProject,content,date) VALUES (23,16,3,'É o que acho tambem','2021-9-5');
+INSERT INTO forum_comments (id,idUser,idProject,content,date) VALUES (24,15,3,'Vamos organizar o trabalho','2021-9-5');
+INSERT INTO forum_comments (id,idUser,idProject,content,date) VALUES (25,16,3,'O que acham que deve mudar','2021-9-5');
+INSERT INTO forum_comments (id,idUser,idProject,content,date) VALUES (26,17,3,'Tudo','2021-9-5');
+INSERT INTO forum_comments (id,idUser,idProject,content,date) VALUES (27,15,3,'Pronto entao como fazemos','2021-9-5');
+INSERT INTO forum_comments (id,idUser,idProject,content,date) VALUES (28,16,3,'Vamos melhorar a organização','2021-9-5');
+INSERT INTO forum_comments (id,idUser,idProject,content,date) VALUES (29,17,3,'Pois é o melhor','2021-9-5');
+INSERT INTO forum_comments (id,idUser,idProject,content,date) VALUES (30,15,3,'Bora entao','2021-9-5');
+INSERT INTO forum_comments (id,idUser,idProject,content,date) VALUES (31,16,3,'Quando podem reunir?','2021-9-5');
+INSERT INTO forum_comments (id,idUser,idProject,content,date) VALUES (32,17,3,'Amanha','2021-9-5');
+INSERT INTO forum_comments (id,idUser,idProject,content,date) VALUES (33,15,3,'Amanha exato','2021-9-5');
+INSERT INTO forum_comments (id,idUser,idProject,content,date) VALUES (34,16,3,'Bora entao','2021-9-5');
+INSERT INTO forum_comments (id,idUser,idProject,content,date) VALUES (35,17,3,'Combinado','2021-9-5');
+INSERT INTO forum_comments (id,idUser,idProject,content,date) VALUES (36,15,3,'Vamos','2021-9-5');
+INSERT INTO forum_comments (id,idUser,idProject,content,date) VALUES (37,10,2,'Temos que trabalhar melhor','2021-9-5');
+INSERT INTO forum_comments (id,idUser,idProject,content,date) VALUES (38,11,2,'É o que estamos a fazer','2021-9-5');
+INSERT INTO forum_comments (id,idUser,idProject,content,date) VALUES (39,12,2,'Mias rapido acho','2021-9-5');
+INSERT INTO forum_comments (id,idUser,idProject,content,date) VALUES (40,13,2,'Temos mesmo','2021-9-5');
+INSERT INTO forum_comments (id,idUser,idProject,content,date) VALUES (41,10,2,'É o que acho tambem','2021-9-5');
+INSERT INTO forum_comments (id,idUser,idProject,content,date) VALUES (42,11,2,'Vamos organizar o trabalho','2021-9-5');
+INSERT INTO forum_comments (id,idUser,idProject,content,date) VALUES (43,12,2,'O que acham que deve mudar','2021-9-5');
+INSERT INTO forum_comments (id,idUser,idProject,content,date) VALUES (44,11,2,'Tudo','2021-9-5');
+INSERT INTO forum_comments (id,idUser,idProject,content,date) VALUES (45,12,2,'Pronto entao como fazemos','2021-9-5');
+INSERT INTO forum_comments (id,idUser,idProject,content,date) VALUES (46,11,2,'Vamos melhorar a organização','2021-9-5');
+INSERT INTO forum_comments (id,idUser,idProject,content,date) VALUES (47,10,2,'Pois é o melhor','2021-9-5');
+INSERT INTO forum_comments (id,idUser,idProject,content,date) VALUES (48,13,2,'Bora entao','2021-9-5');
+INSERT INTO forum_comments (id,idUser,idProject,content,date) VALUES (49,11,2,'Quando podem reunir?','2021-9-5');
+INSERT INTO forum_comments (id,idUser,idProject,content,date) VALUES (50,10,2,'Amanha','2021-9-5');
+INSERT INTO forum_comments (id,idUser,idProject,content,date) VALUES (51,11,2,'Amanha exato','2021-9-5');
+INSERT INTO forum_comments (id,idUser,idProject,content,date) VALUES (52,12,2,'Bora entao','2021-9-5');
+INSERT INTO forum_comments (id,idUser,idProject,content,date) VALUES (53,13,2,'Combinado','2021-9-5');
+INSERT INTO forum_comments (id,idUser,idProject,content,date) VALUES (54,12,2,'Vamos','2021-9-5');
+
+--tasks (13)
+INSERT INTO task (id,idProject,name,dateStarted,details) VALUES (1,1,'Terminar artefacto 1','2021-11-9','Terminar todas as tarefas do artefacto 1');
+INSERT INTO task (id,idProject,name,dateStarted,details) VALUES (2,1,'Terminar artefacto 2','2021-11-9','Terminar todas as tarefas do artefacto 2');
+INSERT INTO task (id,idProject,name,dateStarted,details) VALUES (3,1,'Terminar artefacto 3','2021-11-9','Terminar todas as tarefas do artefacto 3');
+INSERT INTO task (id,idProject,name,dateStarted,details) VALUES (4,1,'Terminar artefacto 4','2021-11-9','Terminar todas as tarefas do artefacto 4');
+INSERT INTO task (id,idProject,name,dateStarted,details) VALUES (5,1,'Terminar artefacto 5','2021-11-9','Terminar todas as tarefas do artefacto 5');
+INSERT INTO task (id,idProject,name,dateStarted,details) VALUES (6,2,'Fazer folha 1','2021-11-9','Fazer todos os exercicios');
+INSERT INTO task (id,idProject,name,dateStarted,details) VALUES (7,2,'Fazer folha 2','2021-11-9','Fazer todos os exercicios');
+INSERT INTO task (id,idProject,name,dateStarted,details) VALUES (8,2,'Fazer folha 3','2021-11-9','Fazer todos os exercicios');
+INSERT INTO task (id,idProject,name,dateStarted,details) VALUES (9,2,'Fazer folha 4','2021-11-9','Fazer todos os exercicios');
+INSERT INTO task (id,idProject,name,dateStarted,details) VALUES (10,2,'Fazer folha 5','2021-11-9','Fazer todos os exercicios');
+INSERT INTO task (id,idProject,name,dateStarted,details) VALUES (11,3,'Terminar codigo HTML','2021-11-9','Desenvolver codigo com componentes');
+INSERT INTO task (id,idProject,name,dateStarted,details) VALUES (12,3,'Teminar codigo javascrit','2021-11-9','Implementar todas as funções dadas na API');
+INSERT INTO task (id,idProject,name,dateStarted,details) VALUES (13,4,'Organizar projeto','2021-11-9','Organizar projeto por tarefas');
+
+--completed (10)
+INSERT INTO completed (id,dateEnded) VALUES (1,'2021-12-1');
+INSERT INTO completed (id,dateEnded) VALUES (2,'2021-12-4');
+INSERT INTO completed (id,dateEnded) VALUES (3,'2021-12-6');
+INSERT INTO completed (id,dateEnded) VALUES (4,'2021-12-8');
+INSERT INTO completed (id,dateEnded) VALUES (5,'2021-12-1');
+INSERT INTO completed (id,dateEnded) VALUES (6,'2021-12-4');
+INSERT INTO completed (id,dateEnded) VALUES (7,'2021-12-6');
+INSERT INTO completed (id,dateEnded) VALUES (8,'2021-12-8');
+INSERT INTO completed (id,dateEnded) VALUES (9,'2021-12-20');
+INSERT INTO completed (id,dateEnded) VALUES (10,'2021-12-28');
+
+--non completed (3)
+INSERT INTO nonCompleted (id) VALUES (11);
+INSERT INTO nonCompleted (id) VALUES (12);
+INSERT INTO nonCompleted (id) VALUES (13);
+
+--doing (3)
+INSERT INTO doing (idUser,idTask,creator) VALUES (17, 12, FALSE);
+INSERT INTO doing (idUser,idTask,creator) VALUES (16, 11, TRUE);
+INSERT INTO doing (idUser,idTask,creator) VALUES (18, 13, FALSE);
+
+--task comments (35)
+INSERT INTO task_comments (id,idUser,idTask,date,content) VALUES (1,1, 1, '2021-11-21', 'Vou terminar esta semana');
+INSERT INTO task_comments (id,idUser,idTask,date,content) VALUES (2,1, 1, '2021-11-21', 'Atrasou');
+INSERT INTO task_comments (id,idUser,idTask,date,content) VALUES (3,1, 1, '2021-11-21', 'Quase a terminar');
+INSERT INTO task_comments (id,idUser,idTask,date,content) VALUES (4,1, 1, '2021-11-21', 'Acabo ainda hoje');
+INSERT INTO task_comments (id,idUser,idTask,date,content) VALUES (5,1, 1, '2021-11-21', 'Terminado');
+INSERT INTO task_comments (id,idUser,idTask,date,content) VALUES (6,2, 2, '2021-11-21', 'Terminar amanha');
+INSERT INTO task_comments (id,idUser,idTask,date,content) VALUES (7,2, 2, '2021-11-21', 'Atrasou');
+INSERT INTO task_comments (id,idUser,idTask,date,content) VALUES (8,2, 2, '2021-11-21', 'Quase a terminar');
+INSERT INTO task_comments (id,idUser,idTask,date,content) VALUES (9,2, 2, '2021-11-21', 'Acabo ainda hoje');
+INSERT INTO task_comments (id,idUser,idTask,date,content) VALUES (10,2, 2, '2021-11-21', 'Terminado finalmente');
+INSERT INTO task_comments (id,idUser,idTask,date,content) VALUES (11,3, 3, '2021-11-21', 'Vou terminar esta semana ou na proxima');
+INSERT INTO task_comments (id,idUser,idTask,date,content) VALUES (12,3, 3, '2021-11-21', 'Atrasou');
+INSERT INTO task_comments (id,idUser,idTask,date,content) VALUES (13,3, 3, '2021-11-21', 'Quase a terminar');
+INSERT INTO task_comments (id,idUser,idTask,date,content) VALUES (14,3, 3, '2021-11-21', 'Acabo ainda hoje ou amanha de manha');
+INSERT INTO task_comments (id,idUser,idTask,date,content) VALUES (15,3, 3, '2021-11-21', 'Terminado');
+INSERT INTO task_comments (id,idUser,idTask,date,content) VALUES (16,4, 4, '2021-11-21', 'Vou terminar esta semana, acho que sim');
+INSERT INTO task_comments (id,idUser,idTask,date,content) VALUES (17,4, 4, '2021-11-21', 'Atrasou mais uma vez');
+INSERT INTO task_comments (id,idUser,idTask,date,content) VALUES (18,4, 4, '2021-11-21', 'Quase a terminar');
+INSERT INTO task_comments (id,idUser,idTask,date,content) VALUES (19,4, 4, '2021-11-21', 'Acabo ainda hoje acho');
+INSERT INTO task_comments (id,idUser,idTask,date,content) VALUES (20,4, 4, '2021-11-21', 'Terminado');
+INSERT INTO task_comments (id,idUser,idTask,date,content) VALUES (21,7, 5, '2021-11-21', 'Vou terminar esta semana');
+INSERT INTO task_comments (id,idUser,idTask,date,content) VALUES (22,7, 5, '2021-11-21', 'Atrasou mais uma vez');
+INSERT INTO task_comments (id,idUser,idTask,date,content) VALUES (23,7, 5, '2021-11-21', 'Quase a terminar');
+INSERT INTO task_comments (id,idUser,idTask,date,content) VALUES (24,7, 5, '2021-11-21', 'Acabo ainda hoje talvez');
+INSERT INTO task_comments (id,idUser,idTask,date,content) VALUES (25,7, 5, '2021-11-21', 'Terminado');
+INSERT INTO task_comments (id,idUser,idTask,date,content) VALUES (26,5, 6, '2021-11-21', 'Vou terminar esta semana');
+INSERT INTO task_comments (id,idUser,idTask,date,content) VALUES (27,5, 6, '2021-11-21', 'Atrasou');
+INSERT INTO task_comments (id,idUser,idTask,date,content) VALUES (28,5, 6, '2021-11-21', 'Quase a terminar');
+INSERT INTO task_comments (id,idUser,idTask,date,content) VALUES (29,5, 6, '2021-11-21', 'Acabo ainda hoje');
+INSERT INTO task_comments (id,idUser,idTask,date,content) VALUES (30,5, 6, '2021-11-21', 'Terminado');
+INSERT INTO task_comments (id,idUser,idTask,date,content) VALUES (31,8, 10, '2021-11-21', 'Vou terminar esta semana');
+INSERT INTO task_comments (id,idUser,idTask,date,content) VALUES (32,8, 10, '2021-11-21', 'Atrasou');
+INSERT INTO task_comments (id,idUser,idTask,date,content) VALUES (33,8, 10, '2021-11-21', 'Quase a terminar, mesmo quase');
+INSERT INTO task_comments (id,idUser,idTask,date,content) VALUES (34,8, 10, '2021-11-21', 'Acabo ainda hoje penso eu');
+INSERT INTO task_comments (id,idUser,idTask,date,content) VALUES (35,8, 10, '2021-11-21', 'Terminado duma vez');
+
+--notifications (7)
+INSERT INTO notifications (id,date,content,idUser) VALUES (1,'2021-10-21', 'Invited', 2);
+INSERT INTO notifications (id,date,content,idUser) VALUES (2,'2021-10-22', 'Invited', 3);
+INSERT INTO notifications (id,date,content,idUser) VALUES (3,'2021-10-25', 'Invited', 4);
+INSERT INTO notifications (id,date,content,idUser) VALUES (4,'2021-11-2', 'Created task', 10);
+INSERT INTO notifications (id,date,content,idUser) VALUES (5,'2021-11-7', 'Created task', 14);
+INSERT INTO notifications (id,date,content,idUser) VALUES (6,'2021-11-10', 'Created task', 12);
+INSERT INTO notifications (id,date,content,idUser) VALUES (7,'2021-11-15', 'Created task', 20);
+```
+
+---
+
+
+## Revision history
+
+- Were added five new business rules, BR3 BR4, BR5, BR6 and BR7
+
